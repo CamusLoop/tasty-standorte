@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="de-AT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tasty – Bewertung abgeben</title>
+<meta name="description" content="Wo warst du bei Tasty? Wähle deinen Standort in Lochau, Dornbirn oder Hohenems und hinterlasse uns eine Google-Bewertung.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#fff8ec">
+<meta name="color-scheme" content="light">
+<link rel="icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #e94e1a;
+    --orange-deep: #c73f12;
+    --yellow: #fcc24e;
+    --yellow-soft: #fde9b8;
+    --cream: #fff8ec;
+    --card: #ffffff;
+    --ink: #24170f;
+    --muted: #7d6a5b;
+    --line: #f1e2c8;
+    --line-strong: #e6cf9f;
+    --google: #1a73e8;
+    --radius: 22px;
+    --shadow: 0 1px 2px rgba(80, 40, 0, .05), 0 10px 30px -14px rgba(120, 60, 0, .25);
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--cream); }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background:
+      radial-gradient(120% 60% at 50% -10%, var(--yellow-soft) 0%, rgba(253, 233, 184, 0) 70%),
+      var(--cream);
+    font-family: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-weight: 600;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: max(18px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+  }
+  main { width: 100%; max-width: 460px; margin: 0 auto; flex: 1; }
+
+  /* ---------- header ---------- */
+  .brand {
+    display: block;
+    width: 150px;
+    height: auto;
+    margin: 14px auto 22px;
+    filter: drop-shadow(0 6px 14px rgba(233, 78, 26, .18));
+    animation: pop .6s cubic-bezier(.2, .9, .3, 1.2) both;
+  }
+  @keyframes pop { from { opacity: 0; transform: scale(.85) translateY(6px); } to { opacity: 1; transform: none; } }
+
+  h1 {
+    font-family: "Fredoka", "Nunito", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: clamp(30px, 8.5vw, 36px);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin: 0 0 10px;
+    text-align: center;
+    color: var(--ink);
+  }
+  h1 em { font-style: normal; color: var(--orange); }
+  .lead {
+    margin: 0 auto 22px;
+    max-width: 34ch;
+    text-align: center;
+    color: var(--muted);
+    font-size: 15.5px;
+    line-height: 1.45;
+  }
+
+  /* ---------- step label ---------- */
+  .step {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 4px 12px;
+    font-size: 13px; font-weight: 800;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .step::after { content: ""; flex: 1; height: 1px; background: var(--line-strong); }
+  .step b {
+    display: inline-grid; place-items: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--orange); color: #fff; font-size: 12px;
+    font-family: "Fredoka", sans-serif; font-weight: 600;
+  }
+
+  /* ---------- location cards ---------- */
+  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+
+  .loc {
+    background: var(--card);
+    border: 2px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease, opacity .25s ease;
+    animation: rise .5s cubic-bezier(.2, .8, .2, 1) both;
+    animation-delay: calc(var(--i) * 70ms + 120ms);
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .loc[data-open="true"] { border-color: var(--orange); box-shadow: 0 14px 34px -14px rgba(233, 78, 26, .45); }
+  .list[data-active="true"] .loc:not([data-open="true"]) { opacity: .62; }
+
+  .head {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 62px 1fr auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px 14px 14px;
+    background: none; border: 0; color: inherit; font: inherit; text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .head:active .tile { transform: scale(.94); }
+
+  .tile {
+    width: 62px; height: 62px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid var(--line);
+    display: grid; place-items: center;
+    overflow: hidden;
+    transition: transform .15s ease;
+  }
+  .tile img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+  .tile svg { width: 100%; height: 100%; }
+
+  .city {
+    font-family: "Fredoka", "Nunito", sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 1.1;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .kind { margin-top: 3px; color: var(--muted); font-size: 14px; line-height: 1.35; }
+  .near {
+    font-family: "Nunito", sans-serif;
+    font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+    background: var(--yellow); color: var(--ink);
+    padding: 3px 8px; border-radius: 999px;
+  }
+
+  .chev {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--cream); color: var(--orange);
+    transition: transform .25s ease, background .2s ease, color .2s ease;
+  }
+  .chev svg { width: 18px; height: 18px; }
+  .loc[data-open="true"] .chev { transform: rotate(180deg); background: var(--orange); color: #fff; }
+
+  /* expandable body */
+  .body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .32s cubic-bezier(.2, .8, .2, 1); }
+  .loc[data-open="true"] .body { grid-template-rows: 1fr; }
+  .body > div { overflow: hidden; }
+  .inner { padding: 2px 16px 16px; display: grid; gap: 10px; }
+
+  .tag { margin: 0; padding-top: 10px; border-top: 1px dashed var(--line-strong); color: var(--orange); font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+  .meta { display: grid; gap: 8px; }
+  .meta a {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--ink); text-decoration: none; font-size: 14.5px;
+  }
+  .meta a span { color: var(--muted); }
+  .meta a:hover span { color: var(--ink); }
+  .meta svg { width: 18px; height: 18px; flex: none; color: var(--orange); }
+
+  .cta {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: var(--orange); color: #fff;
+    text-decoration: none;
+    font-family: "Fredoka", sans-serif; font-weight: 600; font-size: 18px;
+    white-space: nowrap;
+    box-shadow: 0 10px 22px -10px rgba(233, 78, 26, .7);
+    transition: transform .12s ease, background .15s ease;
+  }
+  .cta:hover { background: var(--orange-deep); }
+  .cta:active { transform: scale(.98); }
+  .stars { display: flex; gap: 2px; }
+  .stars svg { width: 15px; height: 15px; fill: var(--yellow); transform: scale(0); }
+  .loc[data-open="true"] .stars svg { animation: star .35s cubic-bezier(.3, 1.4, .5, 1) forwards; }
+  .loc[data-open="true"] .stars svg:nth-child(1) { animation-delay: .15s; }
+  .loc[data-open="true"] .stars svg:nth-child(2) { animation-delay: .23s; }
+  .loc[data-open="true"] .stars svg:nth-child(3) { animation-delay: .31s; }
+  .loc[data-open="true"] .stars svg:nth-child(4) { animation-delay: .39s; }
+  .loc[data-open="true"] .stars svg:nth-child(5) { animation-delay: .47s; }
+  @keyframes star { to { transform: scale(1); } }
+
+  /* ---------- locate button ---------- */
+  .locate {
+    margin: 18px auto 0;
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1.5px solid var(--line-strong);
+    background: #fff; color: var(--ink);
+    font: inherit; font-size: 14px; font-weight: 700;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .locate:hover { border-color: var(--orange); }
+  .locate svg { width: 16px; height: 16px; color: var(--orange); }
+  .locate[data-busy="true"] svg { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .locate[hidden] { display: none; }
+  .hint { text-align: center; color: var(--muted); font-size: 13px; margin: 10px 0 0; min-height: 1.2em; }
+
+  footer { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 30px; line-height: 1.6; }
+  footer a { color: inherit; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .brand, .loc, .stars svg { animation: none !important; transform: none !important; opacity: 1; }
+    .body, .chev, .tile, .loc { transition: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <img class="brand" src="logo-imbiss.png" alt="Tasty Imbiss – Café" width="437" height="384">
+
+  <h1>Hat’s <em>geschmeckt?</em></h1>
+  <p class="lead">Sag uns, wo du warst – deine Google-Bewertung dauert keine Minute und hilft uns riesig.</p>
+
+  <p class="step"><b>1</b> Standort wählen</p>
+  <ul class="list" id="locations"></ul>
+
+  <button class="locate" id="locate" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>
+    Welcher Standort ist in meiner Nähe?
+  </button>
+  <p class="hint" id="hint"></p>
+
+  <footer>
+    Tasty Restaurants &amp; Café · Vorarlberg<br>
+    <a href="https://tasty-zustellung.at" rel="noopener">tasty-zustellung.at</a> ·
+    <a href="https://www.instagram.com/tastyrestaurantscafe/" rel="noopener">Instagram</a>
+  </footer>
+</main>
+
+<script>
+  // ─────────────────────────────────────────────────────────────
+  //  EDIT HERE: one entry per location.
+  //  placeId → Google Place ID; the review button opens
+  //  search.google.com/local/writereview?placeid=<placeId>
+  //  logo    → image file in this folder, or "minimarkt" for the
+  //            built-in shopping-bag mark.
+  // ─────────────────────────────────────────────────────────────
+  const LOCATIONS = [
+    {
+      city: "Lochau",
+      name: "Tasty Café am See",
+      kind: "Café & Bistro · direkt am Bodensee",
+      address: "Lindauer Straße 13, 6911 Lochau",
+      phone: "+43 660 6445105",
+      logo: "logo-cafe.png",
+      placeId: "ChIJF07v23kNm0cR32Ehh2GG5lo",
+      lat: 47.52978, lng: 9.74242
+    },
+    {
+      city: "Dornbirn",
+      name: "Tasty Imbiss – Café",
+      kind: "Pizza · Pasta · Burger & more",
+      address: "Eisengasse 25, 6850 Dornbirn",
+      phone: "+43 5572 372316",
+      logo: "logo-imbiss.png",
+      placeId: "ChIJLVUrC05rm0cRlEpTmK1-Nkk",
+      lat: 47.41676, lng: 9.74181
+    },
+    {
+      city: "Hohenems",
+      name: "Tasty Imbiss – Café",
+      kind: "Pizza · Pasta · Burger & more",
+      address: "Kaiser-Franz-Josef-Straße 25, 6845 Hohenems",
+      phone: "+43 5576 42102",
+      logo: "logo-imbiss.png",
+      placeId: "ChIJzRfGOrMVm0cRS6i9M1ZFHIg",
+      lat: 47.36038, lng: 9.68645
+    },
+    {
+      city: "Lochau",
+      name: "Tasty Minimarkt",
+      kind: "Getränke · Snacks · Convenience",
+      address: "Lindauer Straße 13, 6911 Lochau",
+      phone: "+43 660 6445105",
+      logo: "minimarkt",
+      placeId: "ChIJ6aVfCX4Nm0cRKj0evGJ07SE",
+      lat: 47.52978, lng: 9.74242
+    }
+  ];
+
+  const ICON = {
+    chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+    pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+    tel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.9 2z"/></svg>',
+    star: '<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"/></svg>',
+    minimarkt: '<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#fcc24e"/><path d="M23 27c0-6.5 4-11 9-11s9 4.5 9 11" fill="none" stroke="#d1281d" stroke-width="4" stroke-linecap="round"/><rect x="15" y="25" width="34" height="27" rx="7" fill="#d1281d"/><circle cx="26" cy="35.5" r="2.6" fill="#fcc24e"/><circle cx="38" cy="35.5" r="2.6" fill="#fcc24e"/><path d="M24.5 42.5c3.5 3.6 11.5 3.6 15 0" stroke="#fcc24e" stroke-width="3" fill="none" stroke-linecap="round"/></svg>'
+  };
+
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const reviewUrl = l => `https://search.google.com/local/writereview?placeid=${encodeURIComponent(l.placeId)}`;
+  const mapsUrl   = l => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.name + ", " + l.address)}&query_place_id=${encodeURIComponent(l.placeId)}`;
+  const telUrl    = l => "tel:" + l.phone.replace(/[^\d+]/g, "");
+
+  const list = document.getElementById("locations");
+  list.innerHTML = LOCATIONS.map((l, i) => `
+    <li class="loc" data-open="false" data-i="${i}" style="--i:${i}">
+      <button class="head" type="button" aria-expanded="false" aria-controls="body-${i}">
+        <span class="tile">${l.logo === "minimarkt" ? ICON.minimarkt : `<img src="${esc(l.logo)}" alt="" loading="lazy">`}</span>
+        <span>
+          <span class="city">${esc(l.city)}<span class="near" hidden>In deiner Nähe</span></span>
+          <span class="kind">${esc(l.name)}</span>
+        </span>
+        <span class="chev" aria-hidden="true">${ICON.chev}</span>
+      </button>
+      <div class="body" id="body-${i}">
+        <div>
+          <div class="inner">
+            <p class="tag">${esc(l.kind)}</p>
+            <div class="meta">
+              <a href="${mapsUrl(l)}" rel="noopener" target="_blank">${ICON.pin}<span>${esc(l.address)}</span></a>
+              <a href="${telUrl(l)}">${ICON.tel}<span>${esc(l.phone)}</span></a>
+            </div>
+            <a class="cta" href="${reviewUrl(l)}" rel="noopener">
+              <span class="stars" aria-hidden="true">${ICON.star.repeat(5)}</span>
+              Auf Google bewerten
+            </a>
+          </div>
+        </div>
+      </div>
+    </li>`).join("");
+
+  const cards = [...list.querySelectorAll(".loc")];
+  function open(card, scroll = true) {
+    const willOpen = card.dataset.open !== "true";
+    cards.forEach(c => {
+      const on = willOpen && c === card;
+      c.dataset.open = on;
+      c.querySelector(".head").setAttribute("aria-expanded", on);
+    });
+    list.dataset.active = willOpen;
+    if (willOpen && scroll) setTimeout(() => card.scrollIntoView({ block: "nearest", behavior: "smooth" }), 340);
+  }
+  list.addEventListener("click", e => {
+    const head = e.target.closest(".head");
+    if (head) open(head.closest(".loc"));
+  });
+
+  // ---- "which one is near me?" -----------------------------------------
+  const locate = document.getElementById("locate");
+  const hint = document.getElementById("hint");
+  if (!("geolocation" in navigator)) locate.hidden = true;
+
+  const km = (a, b) => {
+    const R = 6371, dLat = (b.lat - a.lat) * Math.PI / 180, dLng = (b.lng - a.lng) * Math.PI / 180;
+    const s = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(s));
+  };
+
+  locate.addEventListener("click", () => {
+    locate.dataset.busy = "true";
+    hint.textContent = "Einen Moment …";
+    navigator.geolocation.getCurrentPosition(pos => {
+      const me = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      const dist = LOCATIONS.map(l => km(me, l));
+      const best = Math.min(...dist);
+      cards.forEach((c, i) => c.querySelector(".near").hidden = dist[i] > best + 0.15);
+      const idx = dist.indexOf(best);
+      open(cards[idx], true);
+      locate.dataset.busy = "false";
+      locate.hidden = true;
+      hint.textContent = best < 0.5
+        ? `Du bist gerade in ${LOCATIONS[idx].city} – wir haben den Standort für dich markiert.`
+        : `Am nächsten: ${LOCATIONS[idx].city} (${best < 10 ? best.toFixed(1) : Math.round(best)} km entfernt).`;
+    }, () => {
+      locate.dataset.busy = "false";
+      hint.textContent = "Kein Standort verfügbar – wähle einfach oben aus.";
+    }, { timeout: 8000, maximumAge: 60000 });
+  });
+</script>
+</body>
+</html>
